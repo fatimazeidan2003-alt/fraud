@@ -1,14 +1,3 @@
-"""
-Insurance Fraud Detection System
-=================================
-Streamlit app — matches exactly the preprocessing pipeline in the notebook:
-  - Column lowercasing + strip
-  - Ordinal encoding (9 columns)
-  - get_dummies(drop_first=True) on all remaining categoricals
-  - StandardScaler transform
-  - Cost-sensitive Weighted LR with optimised threshold
-"""
-
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -23,7 +12,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# ─── CUSTOM STYLING ──────────────────────────────────────────────────────────
+# ─── styling ──────────────────────────────────────────────────────────
 st.markdown("""
 <style>
     .main-header {
@@ -103,7 +92,7 @@ def age_to_group(age: int) -> str:
     if age <= 65: return "51 – 65"
     return "Over 65"
 
-# ─── ORDINAL MAPS — must match notebook exactly ───────────────────────────────
+# ─── ORDINAL MAPS ───────────────────────────────
 ORDINAL_MAPS = {
     "vehicleprice": {
         "Less than $20,000":  ("less than 20000", 1),
@@ -176,8 +165,6 @@ ORDINAL_MAPS = {
 }
 
 # ─── CATEGORICAL COLUMNS (one-hot after drop_first=True) ─────────────────────
-# FIX 1: key is 'policytype' not 'policetype' — matches notebook column name
-# FIX 2: 'Mecedes' not 'Mecury' — verified against insurance_claims.csv
 CAT_COLUMNS = {
     "month":            ["Jan","Feb","Mar","Apr","May","Jun",
                          "Jul","Aug","Sep","Oct","Nov","Dec"],
@@ -204,7 +191,7 @@ CAT_COLUMNS = {
     "basepolicy":       ["All Perils","Collision","Liability"],
 }
 
-# ─── PREPROCESSING — mirrors notebook exactly ─────────────────────────────────
+# ─── PREPROCESSING ─────────────────────────────────
 def build_feature_vector(inputs: dict) -> pd.DataFrame:
     row = {}
     for col in ["age","weekofmonth","weekofmonthclaimed","deductible","driverrating","year"]:
@@ -287,7 +274,7 @@ with st.sidebar:
                                      help="1 = worst, 4 = best")
     pastnumberofclaims = st.selectbox("Past Claims",
                                       list(ORDINAL_MAPS["pastnumberofclaims"].keys()))
-    # FIX 3: single age slider — age group derived automatically, no redundant dropdown
+  
     age = st.slider("Policyholder Age", 16, 80, 35)
     ageofpolicyholder = age_to_group(age)
     st.caption(f"Age group (used by model): **{ageofpolicyholder}**")
